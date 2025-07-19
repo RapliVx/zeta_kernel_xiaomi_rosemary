@@ -13,8 +13,6 @@
 #include <linux/delayacct.h>
 #include <linux/pid_namespace.h>
 #include <linux/cgroupstats.h>
-#include <linux/binfmts.h>
-#include <linux/devfreq_boost.h>
 
 #include <trace/events/cgroup.h>
 #ifdef CONFIG_MTK_TASK_TURBO
@@ -549,13 +547,6 @@ static ssize_t __cgroup1_procs_write(struct kernfs_open_file *of,
 	if (!ret)
 		cgroup_set_turbo_task(task);
 #endif
-
-	/* This covers boosting for app launches and app transitions */
-	if (!ret && !threadgroup &&
-		!memcmp(of->kn->parent->name, "top-app", sizeof("top-app")) &&
-		is_zygote_pid(task->parent->pid)) {
-		devfreq_boost_kick_max(DEVFREQ_CPU_LLCC_DDR_BW, 500);
-	}
 
 out_finish:
 	cgroup_procs_write_finish(task);
